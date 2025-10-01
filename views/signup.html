@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inscription - Virtual Numbers</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body class="bg-dark text-light">
+
+  <header class="navbar">
+    <div class="container">
+      <h1 class="logo">Virtual<span class="blue">Numbers</span></h1>
+    </div>
+  </header>
+
+  <main class="container">
+    <h2>Créer un compte</h2>
+    <form method="POST" action="/auth/signup" class="form">
+      <label>Email :</label>
+      <input type="email" name="email" required />
+
+      <label>Mot de passe :</label>
+      <input type="password" name="password" required />
+
+      <button type="submit" class="btn btn-primary">S'inscrire</button>
+    </form>
+
+    <p class="note">⚠️ Un prélèvement de <strong>1 €</strong> sera effectué pour valider votre mode de paiement.</p>
+    <p>Déjà un compte ? <a href="/login">Connectez-vous</a></p>
+  </main>
+
+</body>
+</html>
