@@ -1,12 +1,30 @@
+// models/User.js
 import mongoose from "mongoose";
+import bcrypt from "bcrypt";
 
 const userSchema = new mongoose.Schema({
-  name: { type: String, required: true },
+  username: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  verified: { type: Boolean, default: false },
-  verificationCode: { type: String },
-  createdAt: { type: Date, default: Date.now }
+  role: {
+    type: String,
+    enum: ["user", "admin"],
+    default: "user"
+  }
 });
 
-export default mongoose.model("User", userSchema);
+// Hash password avant sauvegarde
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+  this.password = await bcrypt.hash(this.password, 10);
+  next();
+});
+
+// Vérif du mot de passe
+userSchema.methods.matchPassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
+};
+
+const User = mongoose.model("User", userSchema);
+
+export default User;
