@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Virtual Numbers</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-dark text-light">
+
+  <main class="container">
+    <h2>Mon Dashboard</h2>
+    <p>Bienvenue, {{user.email}}</p>
+
+    <h3>Mes numéros</h3>
+    <ul>
+      <!-- Exemple de numéros -->
+      <li>+225 07 12 34 56 78</li>
+      <li>+33 6 12 34 56 78</li>
+    </ul>
+
+    <a href="/numbers/buy" class="btn btn-primary">Acheter un nouveau numéro</a>
+    <a href="/auth/logout" class="btn btn-secondary">Déconnexion</a>
+  </main>
+
+</body>
+</html>
