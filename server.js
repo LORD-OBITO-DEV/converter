@@ -8,6 +8,8 @@ import authRoutes from './routes/auth.js';
 import convertRoutes from './routes/convert.js';
 import ticketRoutes from './routes/tickets.js';
 import path from 'path';
+import adminRoutes from "./routes/admin.js";
+app.use("/api/admin", adminRoutes);
 
 dotenv.config();
 const app = express();
