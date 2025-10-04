@@ -1,34 +1,63 @@
-import express from 'express';
-import dotenv from 'dotenv';
-import mongoose from 'mongoose';
-import cors from 'cors';
-import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
-import authRoutes from './routes/auth.js';
-import convertRoutes from './routes/convert.js';
-import ticketRoutes from './routes/tickets.js';
-import path from 'path';
+import express from "express";
+import mongoose from "mongoose";
+import cors from "cors";
+import dotenv from "dotenv";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
+import path from "path";
+import { fileURLToPath } from "url";
+
+// Routes
+import authRoutes from "./routes/auth.js";
+import fileRoutes from "./routes/files.js";
+import ticketRoutes from "./routes/tickets.js";
 import adminRoutes from "./routes/admin.js";
-app.use("/api/admin", adminRoutes);
 
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
-app.use(helmet());
+
+// Middleware
 app.use(cors());
-app.use(express.json());
-app.use(rateLimit({ windowMs: 15*60*1000, max: 200 }));
+app.use(helmet());
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
-// connect mongo
-mongoose.connect(process.env.MONGO_URI, { autoIndex: true }).then(()=>console.log('Mongo connected'))
-  .catch(e=>{ console.error('Mongo err', e); process.exit(1); });
+// Rate limiter pour endpoints sensibles
+const limiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 30,
+  message: "Trop de requêtes, réessaye plus tard",
+});
+app.use("/api/", limiter);
 
-// static files
-app.use('/files', express.static(path.join(process.cwd(), process.env.UPLOAD_DIR || 'uploads')));
+// Static files (uploads)
+app.use("/uploads", express.static(path.join(__dirname, process.env.UPLOAD_DIR || "uploads")));
 
-// routes
-app.use('/api/auth', authRoutes);
-app.use('/api/convert', convertRoutes);
-app.use('/api/tickets', ticketRoutes);
+// Routes
+app.use("/api/auth", authRoutes);
+app.use("/api/files", fileRoutes);
+app.use("/api/tickets", ticketRoutes);
+app.use("/api/admin", adminRoutes);
 
+// Healthcheck
+app.get("/health", (req, res) => res.json({ status: "ok" }));
+
+// Connexion MongoDB et lancement serveur
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, ()=>console.log('Server listening', PORT));
+mongoose
+  .connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    console.log("✅ Connecté à MongoDB");
+    app.listen(PORT, () => console.log(`🚀 Serveur démarré sur http://localhost:${PORT}`));
+  })
+  .catch((err) => {
+    console.error("❌ Erreur MongoDB :", err);
+    process.exit(1);
+  });
